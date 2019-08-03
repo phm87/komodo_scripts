@@ -35,10 +35,25 @@ echo ' Change: '$change
 # first address is where you want to send to, second address in your NN address for change (!), if tosend != balance
 # don't forget to change it ... 
 
+chips="RChipsMFstBYP4VR4sSY4sX17rV5TFpovc"
+tosend_chips=$(echo "scale=8; $tosend*20/100" | bc -l | sed 's/^\./0./')
+labsnota="RY56ahGYiW69bfPWc9Eids6BDqCtVLtQYp"
+tosend_labsnota=$(echo "scale=8; $tosend*10/100" | bc -l | sed 's/^\./0./')
+labsdevf="RPvDUd2f4QsHYcfVebBBGvZyqZcEYeJd2n"
+tosend_labsdevf=$(echo "scale=8; $tosend*10/100" | bc -l | sed 's/^\./0./')
+
+tosend_tome=$(echo "scale=8; ($tosend - $tosend_chips - $tosend_labsnota - $tosend_labsdevf)*1/1" | bc -l | sed 's/^\./0./')
+myaddress="RTCVGuoSNehKG8YYxcoskC7LK1yZhgvQRV"
+
+change=$(echo "scale=8; ($balance-$tosend_tome - $tosend_chips - $tosend_labsnota - $tosend_labsdevf)/1*1" | bc -l | sed 's/^\./0./')
+changeaddress="RNJmgYaFF5DbnrNUX6pMYz9rcnDKC2tuAc"
+
 if (( $(echo "$change > 0" | bc -l) )); then
-    addresses='{"RTCVGuoSNehKG8YYxcoskC7LK1yZhgvQRV":'$tosend',"RNJmgYaFF5DbnrNUX6pMYz9rcnDKC2tuAc":'$change'}'
+#    addresses='{"RTCVGuoSNehKG8YYxcoskC7LK1yZhgvQRV":'$tosend',"RNJmgYaFF5DbnrNUX6pMYz9rcnDKC2tuAc":'$change'}'
+    addresses='{"'$chips'":'$tosend_chips',"'$labsnota'":'$tosend_labsnota',"'$labsdevf'":'$tosend_labsdevf',"'$myaddress'":'$tosend_tome',"'$changeaddress'":'$change'}'
 else
-    addresses='{"RTCVGuoSNehKG8YYxcoskC7LK1yZhgvQRV":'$tosend'}'
+#    addresses='{"RTCVGuoSNehKG8YYxcoskC7LK1yZhgvQRV":'$tosend'}'
+    addresses='{"'$chips'":'$tosend_chips',"'$labsnota'":'$tosend_labsnota',"'$labsdevf'":'$tosend_labsdevf',"'$myaddress'":'$tosend_tome'}'
 fi
 
 echo "{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"createrawtransaction\", \"params\": [$transactions,$addresses] }" > $curdir/createrawtx.curl
